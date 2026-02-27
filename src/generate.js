@@ -69,7 +69,7 @@ function generateFiles(data, baseOutputDir) {
   const functionsDir = path.join(baseOutputDir, "functions");
   const classesDir = path.join(baseOutputDir, "classes");
 
-  if (!fs.existsSync(baseOutputDir)) fs.mkdirSync(baseOutputDir);
+  if (!fs.existsSync(baseOutputDir)) fs.mkdirSync(baseOutputDir,{ recursive: true });
   if (!fs.existsSync(functionsDir)) fs.mkdirSync(functionsDir);
   if (!fs.existsSync(classesDir)) fs.mkdirSync(classesDir);
 
