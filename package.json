@@ -1,0 +1,24 @@
+{
+  "name": "webpack-jsdoc-mdx-generator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moshams272/webpack-jsdoc-mdx-generator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/moshams272/webpack-jsdoc-mdx-generator/issues"
+  },
+  "homepage": "https://github.com/moshams272/webpack-jsdoc-mdx-generator#readme",
+  "dependencies": {
+    "jsdoc": "^4.0.5"
+  }
+}
