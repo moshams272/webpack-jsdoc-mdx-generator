@@ -17,6 +17,21 @@ const packageData = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
 const majorVersion = packageData.version.split(".")[0];
 const versionFolder = `v${majorVersion}`;
 
+function getAllFiles(dirPath, arrayOfFiles = []) {
+  const files = fs.readdirSync(dirPath);
+
+  files.forEach((file) => {
+    const fullPath = path.join(dirPath, file);
+    if (fs.statSync(fullPath).isDirectory()) {
+      arrayOfFiles = getAllFiles(fullPath, arrayOfFiles);
+    } else {
+      arrayOfFiles.push(fullPath);
+    }
+  });
+
+  return arrayOfFiles;
+}
+
 async function createPullRequest() {
   try {
     console.log("Retrieving latest commit from the base branch...");
@@ -35,14 +50,16 @@ async function createPullRequest() {
     const baseTreeSha = commitData.tree.sha;
 
     const docsDir = path.join(__dirname, `../docs/${versionFolder}/api`);
-    const files = fs.readdirSync(docsDir);
+    const allFiles = getAllFiles(docsDir);
     const treeItems = [];
 
-    for (const file of files) {
-      if (file.endsWith(".mdx")) {
-        const content = fs.readFileSync(path.join(docsDir, file), "utf-8");
+    for (const filePath of allFiles) {
+      if (filePath.endsWith(".mdx")) {
+        const content = fs.readFileSync(filePath, "utf-8");
+        const relativePath = path.relative(docsDir, filePath).replace(/\\/g, '/');
+
         treeItems.push({
-          path: `docs/${versionFolder}/api/${file}`,
+          path: `docs/${versionFolder}/api/${relativePath}`,
           mode: "100644",
           type: "blob",
           content: content,
