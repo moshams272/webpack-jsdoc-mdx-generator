@@ -1,10 +1,10 @@
 const fs = require("fs");
-const parseDocs = require("./parser");
-const generateMDX = require("./generator");
+const parseDocs = require("./parser.js");
+const generateMDX = require("./generate.js");
 
-const docs = parseDocs("../output.json");
+const docs = parseDocs("./output.json");
 
-const outputDir = "../docs";
+const outputDir = "./docs";
 
 if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir);
