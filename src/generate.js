@@ -1,29 +1,85 @@
-function generateMDX(doc) {
-  let mdx = `# ${doc.name}\n\n`;
+const fs = require("fs");
+const path = require("path");
 
-  if (doc.params && doc.params.length > 0) {
-    mdx += `## Parameters\n\n`;
+function formatParams(params) {
+  if (!params.length) return "";
 
-    doc.params.forEach(param => {
-      const type = param.type?.names?.join(" | ") || "unknown";
-      const description = param.description || "";
+  let output = "## Parameters\n\n";
+  params.forEach((p) => {
+    const type = p.type?.names?.join(", ") || "any";
+    output += `- **${p.name}** (*${type}*) - ${p.description || ""}\n`;
+  });
 
-      mdx += `- \`${param.name}\` (${type}): ${description}\n`;
-    });
-
-    mdx += `\n`;
-  }
-
-  if (doc.returns && doc.returns.length > 0) {
-    mdx += `## Returns\n\n`;
-
-    const returnType = doc.returns[0].type?.names?.join(" | ") || "unknown";
-    const returnDescription = doc.returns[0].description || "";
-
-    mdx += `\`${returnType}\` — ${returnDescription}\n\n`;
-  }
-
-  return mdx;
+  return output + "\n";
 }
 
-module.exports = generateMDX;
+function formatReturns(returns) {
+  if (!returns.length) return "";
+
+  const r = returns[0];
+  const type = r.type?.names?.join(", ") || "void";
+
+  return `## Returns\n\n- *${type}* - ${r.description || ""}\n\n`;
+}
+
+function generateFunctionFile(fn, outputDir) {
+  let content = `# ${fn.name}\n\n`;
+  content += `${fn.description}\n\n`;
+  content += formatParams(fn.params);
+  content += formatReturns(fn.returns);
+
+  fs.writeFileSync(
+    path.join(outputDir, `${fn.name}.mdx`),
+    content
+  );
+}
+
+function generateClassFile(cls, outputDir) {
+  let content = `# ${cls.name}\n\n`;
+  content += `${cls.description}\n\n`;
+
+  if (cls.constructor) {
+    content += `## Constructor\n\n`;
+    content += formatParams(cls.constructor.params);
+  }
+
+  if (cls.methods.length) {
+    content += `## Methods\n\n`;
+
+    cls.methods.forEach((method) => {
+      content += `### ${method.name}`;
+      if (method.scope === "static") {
+        content += " _(static)_";
+      }
+      content += "\n\n";
+
+      content += `${method.description}\n\n`;
+      content += formatParams(method.params);
+      content += formatReturns(method.returns);
+    });
+  }
+
+  fs.writeFileSync(
+    path.join(outputDir, `${cls.name}.mdx`),
+    content
+  );
+}
+
+function generateFiles(data, baseOutputDir) {
+  const functionsDir = path.join(baseOutputDir, "functions");
+  const classesDir = path.join(baseOutputDir, "classes");
+
+  if (!fs.existsSync(baseOutputDir)) fs.mkdirSync(baseOutputDir);
+  if (!fs.existsSync(functionsDir)) fs.mkdirSync(functionsDir);
+  if (!fs.existsSync(classesDir)) fs.mkdirSync(classesDir);
+
+  data.functions.forEach((fn) =>
+    generateFunctionFile(fn, functionsDir)
+  );
+
+  data.classes.forEach((cls) =>
+    generateClassFile(cls, classesDir)
+  );
+}
+
+module.exports = generateFiles;
