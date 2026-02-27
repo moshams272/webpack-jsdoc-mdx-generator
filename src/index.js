@@ -1,10 +1,13 @@
 const fs = require("fs");
+const path = require("path");
+
 const parseDocs = require("./parser.js");
 const generateMDX = require("./generate.js");
 
-const docs = parseDocs("./output.json");
+const jsonPath = path.join(__dirname, "../output.json"); 
+const docs = parseDocs(jsonPath);
 
-const outputDir = "./docs";
+const outputDir = path.join(__dirname, "../docs");
 
 if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir);
@@ -12,10 +15,9 @@ if (!fs.existsSync(outputDir)) {
 
 docs.forEach(doc => {
   const mdxContent = generateMDX(doc);
-  
-  const filePath = `${outputDir}/${doc.name}.mdx`;
+  const filePath = path.join(outputDir, `${doc.name}.mdx`);
 
   fs.writeFileSync(filePath, mdxContent);
 });
 
-console.log("MDX files generated");
+console.log(`Generated ${docs.length} MDX files in ${outputDir}`);
